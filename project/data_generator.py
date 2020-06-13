@@ -3,7 +3,7 @@ Generate random COVID-19 data
 
 File format:
      ID, First name, Last name, Street, City, State,
-     Covid_affected, [children]
+     Covid_affected, [children ids]
 """
 from person import (Person, Address)
 
@@ -17,6 +17,7 @@ class Generator:
             root = call gen
             while y < num_children: 
                 person.append(call generat_person)
+                x ++ 
 
             root.children = person
 
@@ -46,3 +47,11 @@ class Generator:
             file.write("\n")
         """
         pass
+
+
+if __name__ == "__main__":
+    """
+    create gen object (pass lists of names )  <-- tree is built but not marked
+    obj.mark_affected(10)
+    obj.produce_csv
+    """

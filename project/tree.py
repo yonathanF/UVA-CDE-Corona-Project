@@ -4,6 +4,7 @@ Tree structure with basic methods built in
 
 from person import (Address, Person)
 
+
 class Node:
     """
     A single entity in the tree
@@ -21,7 +22,13 @@ class Tree:
     A tree representation of the COVID-19 data
     """
 
-    def insert(self, node):
+    def __init__(self, csv_filename):
+        pass
+
+    # a method for taking a csv and producing a tree
+        # call insert(id parent, id for each child)
+
+    def insert(self, parent, child):
         """
         Inserts the node somewhere in the tree
         """
