@@ -45,6 +45,7 @@ class Generator:
         self.min_children = min_children
         self.max_children = max_children
         self.depth_limit = depth_limit
+        self.num_nodes = 0
 
         # index in the information lists above, used in generate_person function
         self.index = 0
@@ -54,6 +55,7 @@ class Generator:
         Generates the tree data under the parameter of the init
         """
         root = self.generate_person()
+        self.num_nodes += 1
 
         def generate_single_path(self, parent, current_depth):
             log.debug("Depth:  {}".format(current_depth))
@@ -62,6 +64,7 @@ class Generator:
 
             num_children = randrange(self.min_children, self.max_children)
             for _ in range(num_children):
+                self.num_nodes += 1
                 parent.add_child(self.generate_person())
 
             log.debug(f"\t Parent has {len(parent.children)} children")
