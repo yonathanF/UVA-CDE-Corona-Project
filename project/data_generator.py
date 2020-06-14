@@ -5,7 +5,7 @@ File format:
      ID, First name, Last name, Street, City, State,
      Covid_affected, [children ids]
 """
-from person import (Person, Address)
+from person import (Person, Address, COVID_Status)
 from random import randrange
 from queue import Queue
 import logging
@@ -45,7 +45,7 @@ class Generator:
         self.min_children = min_children
         self.max_children = max_children
         self.depth_limit = depth_limit
-        self.num_nodes = 0
+        self.global_num_nodes = 0
 
         # index in the information lists above, used in generate_person function
         self.index = 0
@@ -55,7 +55,7 @@ class Generator:
         Generates the tree data under the parameter of the init
         """
         root = self.generate_person()
-        self.num_nodes += 1
+        self.global_num_nodes += 1
 
         def generate_single_path(self, parent, current_depth):
             log.debug("Depth:  {}".format(current_depth))
@@ -64,7 +64,7 @@ class Generator:
 
             num_children = randrange(self.min_children, self.max_children)
             for _ in range(num_children):
-                self.num_nodes += 1
+                self.global_num_nodes += 1
                 parent.add_child(self.generate_person())
 
             log.debug(f"\t Parent has {len(parent.children)} children")
@@ -114,8 +114,44 @@ class Generator:
             states.append((helper[2].replace(" ", "")).rstrip())
         return streets, cities, states
 
-    def mark_affected(self, threshold_to_mark=10):
-        pass
+    def mark_affected(self, root, threshold_to_mark=10):
+        """
+        Marks the nodes as affected depending on the threshold_to_mark
+        Input: the root and the threshold we wish to mark
+        Return: N/A
+        """
+        
+        # dfs traversal of the tree and pushing people onto a list
+        # so that we can iterate through it easier
+        def dfs(root):
+            if root is None:
+                return []
+        
+            stack, output = [root, ], []            
+            while stack:
+                root = stack.pop()
+                output.append(root)
+                stack.extend(root.children[::-1])
+                    
+            return output
+        
+        output_list = dfs(root)
+
+        # count the number of total children per node
+        def count(person):
+            num_of_children = 1
+            for child in person.children:
+                num_of_children += count(child)
+            return num_of_children
+
+        # iterate through our persons list and if the persons total number of 
+        # children divded by the total number of nodes in the tree is less
+        # than the threshold and that number is not 0 (aka a leaf node) then
+        # mark that person as affected
+        for person in output_list:
+            persons_children = count(person) - 1 # we subtract one because we don't want to include ourself
+            if (((persons_children / self.global_num_nodes) * 100) < threshold_to_mark) and persons_children != 0:
+                person.covid_affected = COVID_Status.AFFECTED
 
     def generate_person(self):
         """
@@ -158,12 +194,13 @@ if __name__ == "__main__":
     generator = Generator("data/names_to_sample.txt",
                           "data/addresses_to_sample.txt", 3, 3, 5)
     root = generator.generate_data()
-    generator.produce_csv(root, "test.csv")
+    generator.mark_affected(root)
+    generator.produce_csv(root, "test_with_affected_marked.csv")
 
-    # queue = Queue()
-    # queue.put(root)
-    # while not queue.empty():
-        # node = queue.get()
-        # for child in node.children:
-            # print(f"\"{node.person_id}\" -> \"{child.person_id}\"")
-            # queue.put(child)
+    queue = Queue()
+    queue.put(root)
+    while not queue.empty():
+        node = queue.get()
+        for child in node.children:
+            print(f"\"{node.person_id, node.covid_affected}\" -> \"{child.person_id, node.covid_affected}\"")
+            queue.put(child)
