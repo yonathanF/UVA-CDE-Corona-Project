@@ -27,17 +27,24 @@ class PersonGenerator(Person):
     def add_child(self, person):
         self.children.append(person)
 
+    def __str__(self):
+        children = ""
+        for child in self.children:
+            children += ","+child.person_id
+
+        return super().__str__()+children
+
 
 class Generator:
     """Base data generator"""
 
-    def __init__(self, name_file, addresses_file, num_nodes, min_children, max_children):
+    def __init__(self, name_file, addresses_file, depth_limit, min_children, max_children):
         self.first_names, self.last_names = self.name_parser(name_file)
         self.streets, self.cities, self.states = self.address_parser(
             addresses_file)
         self.min_children = min_children
         self.max_children = max_children
-        self.num_nodes = num_nodes
+        self.depth_limit = depth_limit
 
         # index in the information lists above, used in generate_person function
         self.index = 0
@@ -46,14 +53,11 @@ class Generator:
         """
         Generates the tree data under the parameter of the init
         """
-
         root = self.generate_person()
-        # depth_limit = self.num_nodes // num_children
-        depth_limit = 3
 
         def generate_single_path(self, parent, current_depth):
             log.debug("Depth:  {}".format(current_depth))
-            if current_depth >= depth_limit:
+            if current_depth >= self.depth_limit:
                 return None
 
             num_children = randrange(self.min_children, self.max_children)
@@ -63,7 +67,7 @@ class Generator:
             log.debug(f"\t Parent has {len(parent.children)} children")
             for child_index in range(num_children):
                 generate_single_path(self,
-                     parent.children[child_index], current_depth+1)
+                                     parent.children[child_index], current_depth+1)
                 log.debug(f"\t Finished child {child_index} path")
 
         generate_single_path(self, root, 0)
@@ -131,28 +135,32 @@ class Generator:
         self.index += 1
         return person
 
-    def produce_csv(self, file_name):
+    def produce_csv(self, root, file_name):
         """
-        loop through all nodes depth/width first
-        call str on it
-        with file as open(filename, 'w'):
-            file.write(str ^^^)
-            file.write("\n")
+        Produce a csv file of the data
         """
-        pass
+
+        queue = Queue()
+        queue.put(root)
+        with open(file_name, 'w') as output_file:
+            while not queue.empty():
+                node = queue.get()
+                output_file.write(str(node)+"\n")
+                for child in node.children:
+                    queue.put(child)
 
 
 if __name__ == "__main__":
 
     generator = Generator("data/names_to_sample.txt",
-                          "data/addresses_to_sample.txt", 10, 1, 5)
+                          "data/addresses_to_sample.txt", 3, 3, 5)
     root = generator.generate_data()
+    generator.produce_csv(root, "test.csv")
 
-
-    queue = Queue()
-    queue.put(root)
-    while not queue.empty():
-        node = queue.get()
-        for child in node.children:
-            print(f"\"{node.person_id}\" -> \"{child.person_id}\"")
-            queue.put(child)
+    # queue = Queue()
+    # queue.put(root)
+    # while not queue.empty():
+        # node = queue.get()
+        # for child in node.children:
+            # print(f"\"{node.person_id}\" -> \"{child.person_id}\"")
+            # queue.put(child)
