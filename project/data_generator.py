@@ -10,7 +10,7 @@ from person import (Person, Address)
 class Generator:
     """Data generator"""
 
-    def __init__(self, num_nodes, max_children, min_children, first_names, last_names, cities, states):
+    def __init__(self, num_nodes=None, max_children=None, min_children=None):
         self.first_names, self.last_names = self.name_parser("names_to_sample.txt")
         self.streets, self.cities, self.states = self.address_parser("addresses_to_sample.txt")
         self.index = 0 #index in the information lists above, used in generate_person function
@@ -74,12 +74,16 @@ class Generator:
         Sample a (somewhat) unique person from the data passed in
         """
         if self.index < len(self.first_names):
-            person = Person()
-            person.first_name = self.first_names[self.index]
-            person.last_name = self.last_names[self.index]
-            person.address.street = self.streets[self.index]
-            person.address.city = self.cities[self.index]
-            person.address.state = self.states[self.index]
+            address = Address(
+                            self.streets[self.index],
+                            self.last_names[self.index],
+                            self.states[self.index]
+            )
+            person = Person(
+                            self.first_names[self.index],
+                            self.last_names[self.index],
+                            address
+            )
             self.index += 1
             return person
         else:
