@@ -9,12 +9,14 @@ from person import (Person, Address)
 
 
 class Generator:
-    """Data generator"""
+    """Base data generator"""
 
-    def __init__(self, num_nodes=None, max_children=None, min_children=None):
-        self.first_names, self.last_names = self.name_parser("names_to_sample.txt")
-        self.streets, self.cities, self.states = self.address_parser("addresses_to_sample.txt")
-        self.index = 0 #index in the information lists above, used in generate_person function
+    def __init__(self, name_file, addresses_file, num_nodes, max_children, min_children):
+        self.first_names, self.last_names = self.name_parser(name_file)
+        self.streets, self.cities, self.states = self.address_parser(addresses_file)
+
+        #index in the information lists above, used in generate_person function
+        self.index = 0 
 
         """
         while x < num_nodes:
