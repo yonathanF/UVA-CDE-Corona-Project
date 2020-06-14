@@ -11,6 +11,10 @@ class Generator:
     """Data generator"""
 
     def __init__(self, num_nodes, max_children, min_children, first_names, last_names, cities, states):
+        self.first_names, self.last_names = self.name_parser("names_to_sample.txt")
+        self.streets, self.cities, self.states = self.address_parser("addresses_to_sample.txt")
+        self.index = 0 #index in the information lists above, used in generate_person function
+
         """
         while x < num_nodes:
             num_children = random(max, min)
@@ -28,6 +32,39 @@ class Generator:
 
             """
 
+    def name_parser(self,filename):
+        """
+        Input: the name file we are parsing
+        Return: list of first and list last names
+        Notes: Indecies of the return lists refer to each other (the first name at index n corresponds to the last name at index n)
+        """
+        file_ = open(filename,"r+")
+        first_names = [] #first name list
+        last_names = [] #last name list
+        for line in file_:
+            helper = line.split(" ") #split the string at the space
+            first_names.append(helper[0])
+            last_names.append(helper[1].rstrip()) #rstrip to get rid of the \n char at the end of the string
+        file_.close()
+        return first_names, last_names
+
+    def address_parser(self,filename):
+        """
+        Input: the address file we are parsing
+        Return: list of streets, list of cities and list states
+        Notes: Indecies of the return lists refer to each other (the street at index n corresponds to the city and state at index n)
+        """
+        file_ = open(filename,"r+")
+        streets = []
+        cities = []
+        states = []
+        for line in file_:
+            helper = line.split(",") #split the address at the comma
+            streets.append(helper[0])
+            cities.append(helper[1]) 
+            states.append((helper[2].replace(" ","")).rstrip())#rstrip to get rid of the \n char at the end of the string and strip to get rid of the whitespace surrounding the states
+        print(len(states),len(streets),len(cities))
+        return streets, cities, states
 
     def mark_affected(self, threshold_to_mark=10):
         pass
@@ -36,7 +73,14 @@ class Generator:
         """
         Sample a (somewhat) unique person from the data passed in
         """
-        pass
+        person = Person()
+        person.first_name = self.first_names[self.index]
+        person.last_name = self.last_names[self.index]
+        person.address.street = self.streets[self.index]
+        person.address.city = self.cities[self.index]
+        person.address.state = self.states[self.index]
+        self.index += 1
+        return person
 
     def produce_csv(self, file_name):
         """
