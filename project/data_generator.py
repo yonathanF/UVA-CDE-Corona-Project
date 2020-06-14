@@ -6,7 +6,7 @@ File format:
      Covid_affected, [children ids]
 """
 from person import (Person, Address, COVID_Status)
-from random import randrange
+from random import randrange, shuffle
 from queue import Queue
 import logging
 
@@ -159,12 +159,19 @@ class Generator:
         Sample a (somewhat) unique person from the data passed in
         :returns: Person
         """
-        if self.index > len(self.first_names):
-            raise ValueError("No more people left to sample")
+        # When we have reached the max index for our bank of information,
+        # shuffle the lists in random order and use them again
+        if self.index >= len(self.first_names):
+            shuffle(self.first_names)
+            shuffle(self.last_names)
+            shuffle(self.streets)
+            shuffle(self.cities)
+            shuffle(self.states)
+            self.index = 0
 
         address = Address(
             self.streets[self.index],
-            self.last_names[self.index],
+            self.cities[self.index],
             self.states[self.index]
         )
         person = PersonGenerator(
@@ -193,7 +200,7 @@ class Generator:
 if __name__ == "__main__":
 
     generator = Generator("data/names_to_sample.txt",
-                          "data/addresses_to_sample.txt",4, 3, 5)
+                          "data/addresses_to_sample.txt",8, 3, 5)
     root = generator.generate_data()
     generator.mark_affected(root, 2)
     # generator.produce_csv(root, "test_with_affected_marked.csv")
