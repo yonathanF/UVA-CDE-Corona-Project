@@ -73,14 +73,18 @@ class Generator:
         """
         Sample a (somewhat) unique person from the data passed in
         """
-        person = Person()
-        person.first_name = self.first_names[self.index]
-        person.last_name = self.last_names[self.index]
-        person.address.street = self.streets[self.index]
-        person.address.city = self.cities[self.index]
-        person.address.state = self.states[self.index]
-        self.index += 1
-        return person
+        if self.index < len(self.first_names):
+            person = Person()
+            person.first_name = self.first_names[self.index]
+            person.last_name = self.last_names[self.index]
+            person.address.street = self.streets[self.index]
+            person.address.city = self.cities[self.index]
+            person.address.state = self.states[self.index]
+            self.index += 1
+            return person
+        else:
+            print("No more people left to sample")
+            return None
 
     def produce_csv(self, file_name):
         """
