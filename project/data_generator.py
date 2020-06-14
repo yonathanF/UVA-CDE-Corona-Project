@@ -120,21 +120,21 @@ class Generator:
         Input: the root and the threshold we wish to mark
         Return: N/A
         """
-        
+
         # dfs traversal of the tree and pushing people onto a list
         # so that we can iterate through it easier
         def dfs(root):
             if root is None:
                 return []
-        
-            stack, output = [root, ], []            
+
+            stack, output = [root, ], []
             while stack:
                 root = stack.pop()
                 output.append(root)
                 stack.extend(root.children[::-1])
-                    
+
             return output
-        
+
         output_list = dfs(root)
 
         # count the number of total children per node
@@ -144,12 +144,13 @@ class Generator:
                 num_of_children += count(child)
             return num_of_children
 
-        # iterate through our persons list and if the persons total number of 
+        # iterate through our persons list and if the persons total number of
         # children divded by the total number of nodes in the tree is less
         # than the threshold and that number is not 0 (aka a leaf node) then
         # mark that person as affected
         for person in output_list:
-            persons_children = count(person) - 1 # we subtract one because we don't want to include ourself
+            # we subtract one because we don't want to include ourself
+            persons_children = count(person) - 1
             if (((persons_children / self.global_num_nodes) * 100) < threshold_to_mark) and persons_children != 0:
                 person.covid_affected = COVID_Status.AFFECTED
 
@@ -192,15 +193,30 @@ class Generator:
 if __name__ == "__main__":
 
     generator = Generator("data/names_to_sample.txt",
-                          "data/addresses_to_sample.txt", 3, 3, 5)
+                          "data/addresses_to_sample.txt",4, 3, 5)
     root = generator.generate_data()
-    generator.mark_affected(root)
-    generator.produce_csv(root, "test_with_affected_marked.csv")
+    generator.mark_affected(root, 2)
+    # generator.produce_csv(root, "test_with_affected_marked.csv")
 
     queue = Queue()
     queue.put(root)
+    red = "[color=\"0.000 1.000 1.000\"]"
+    blue = "[color=\"0.603 0.258 1.000\"]"
     while not queue.empty():
         node = queue.get()
         for child in node.children:
-            print(f"\"{node.person_id, node.covid_affected}\" -> \"{child.person_id, node.covid_affected}\"")
+            if child.covid_affected == COVID_Status.AFFECTED:
+                child_color = red
+            else:
+                child_color = blue
+
+            if node.covid_affected == COVID_Status.AFFECTED:
+                node_color = red
+            else:
+                node_color = blue
+
+            print(
+                f"\"{node.person_id}\" -> \"{child.person_id}\"")
+            print(f"\"{node.person_id}\" {node_color};")
+            print(f"\"{child.person_id}\" {child_color};")
             queue.put(child)
