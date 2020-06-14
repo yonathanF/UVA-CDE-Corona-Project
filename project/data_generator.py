@@ -7,6 +7,7 @@ File format:
 """
 from person import (Person, Address)
 
+
 class Generator:
     """Data generator"""
 
@@ -72,6 +73,7 @@ class Generator:
     def generate_person(self):
         """
         Sample a (somewhat) unique person from the data passed in
+        :returns: Person
         """
         if self.index < len(self.first_names):
             address = Address(
