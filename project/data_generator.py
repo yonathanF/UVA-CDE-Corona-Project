@@ -13,10 +13,11 @@ class Generator:
 
     def __init__(self, name_file, addresses_file, num_nodes, max_children, min_children):
         self.first_names, self.last_names = self.name_parser(name_file)
-        self.streets, self.cities, self.states = self.address_parser(addresses_file)
+        self.streets, self.cities, self.states = self.address_parser(
+            addresses_file)
 
-        #index in the information lists above, used in generate_person function
-        self.index = 0 
+        # index in the information lists above, used in generate_person function
+        self.index = 0
 
         """
         while x < num_nodes:
@@ -35,38 +36,43 @@ class Generator:
 
             """
 
-    def name_parser(self,filename):
+    def name_parser(self, filename):
         """
         Input: the name file we are parsing
         Return: list of first and list last names
-        Notes: Indecies of the return lists refer to each other (the first name at index n corresponds to the last name at index n)
+        Notes: Indcies of the return lists refer to each other
+              (the first name at index n corresponds to the last name at index n)
         """
-        file_ = open(filename,"r+")
-        first_names = [] #first name list
-        last_names = [] #last name list
+        file_ = open(filename, "r+")
+        first_names = []  # first name list
+        last_names = []  # last name list
         for line in file_:
-            helper = line.split(" ") #split the string at the space
+            helper = line.split(" ")  # split the string at the space
             first_names.append(helper[0])
-            last_names.append(helper[1].rstrip()) #rstrip to get rid of the \n char at the end of the string
+            # rstrip to get rid of the \n char at the end of the string
+            last_names.append(helper[1].rstrip())
         file_.close()
         return first_names, last_names
 
-    def address_parser(self,filename):
+    def address_parser(self, filename):
         """
         Input: the address file we are parsing
         Return: list of streets, list of cities and list states
-        Notes: Indecies of the return lists refer to each other (the street at index n corresponds to the city and state at index n)
+        Notes: Indecies of the return lists refer to each other 
+               (the street at index n corresponds to the city and state at index n)
         """
-        file_ = open(filename,"r+")
+        file_ = open(filename, "r+")
         streets = []
         cities = []
         states = []
         for line in file_:
-            helper = line.split(",") #split the address at the comma
+            helper = line.split(",")  # split the address at the comma
             streets.append(helper[0])
-            cities.append(helper[1]) 
-            states.append((helper[2].replace(" ","")).rstrip())#rstrip to get rid of the \n char at the end of the string and strip to get rid of the whitespace surrounding the states
-        print(len(states),len(streets),len(cities))
+            cities.append(helper[1])
+            # rstrip to get rid of the \n char at the end of the string and strip to get 
+            # rid of the whitespace surrounding the states
+            states.append((helper[2].replace(" ", "")).rstrip())
+        print(len(states), len(streets), len(cities))
         return streets, cities, states
 
     def mark_affected(self, threshold_to_mark=10):
@@ -79,14 +85,14 @@ class Generator:
         """
         if self.index < len(self.first_names):
             address = Address(
-                            self.streets[self.index],
-                            self.last_names[self.index],
-                            self.states[self.index]
+                self.streets[self.index],
+                self.last_names[self.index],
+                self.states[self.index]
             )
             person = Person(
-                            self.first_names[self.index],
-                            self.last_names[self.index],
-                            address
+                self.first_names[self.index],
+                self.last_names[self.index],
+                address
             )
             self.index += 1
             return person
