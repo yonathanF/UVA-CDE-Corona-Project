@@ -21,9 +21,11 @@ class Tree:
     A tree representation of the COVID-19 data
     """
 
-    def __init__(self,root):
+    def __init__(self,root,count=0,affected=0):
         self.root = root
         self.nodes = {}
+        self.count=count
+        self.affected=affected
 
     def insert(self,id,node):
         """
@@ -39,18 +41,37 @@ class Tree:
         """
         pass
 
-    def get_affected_percentage(self):
+    def get_affected_percentage(self, node=None):
         """
-        return the percentage of affected nodes in the 
-        whole tree.
+        Return the percentage of affected nodes in the whole tree.
         """
-        pass
+        self.count += 1
 
-    def print_all_nodes(self):
+        if not node:
+            node = self.root
+        if node.person.covid_affected == COVID_Status.AFFECTED.name:
+            self.affected += 1
+            
+        if len(node.children) == 0: # base case
+            return
+        for each in node.children:
+            self.get_affected_percentage(tree.nodes[each])
+        return str((self.affected / self.count) * 100) + "%"
+
+    def print_all_nodes(self, node=None):
         """
-        Print all nodes recusively
+        Print all nodes recusively.
         """
-        pass
+        if not node:
+            node = self.root
+        
+        print(str(node))
+
+        if len(node.children) == 0: # base case
+            return 
+        for each in node.children:
+            self.print_all_nodes(self.nodes[each])
+        return 
 
 if __name__ == "__main__":
     # Lists Holding People and Children information
