@@ -60,7 +60,7 @@ class Tree:
 
     def print_all_nodes(self, node=None):
         """
-        Print all nodes recusively.
+        Print all nodes recusively; depth-first traversal.
         """
         if not node:
             node = self.root
