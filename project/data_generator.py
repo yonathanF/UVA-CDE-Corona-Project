@@ -151,7 +151,8 @@ class Generator:
         for person in output_list:
             # we subtract one because we don't want to include ourself
             persons_children = count(person) - 1
-            if (((persons_children / self.global_num_nodes) * 100) < threshold_to_mark) and persons_children != 0:
+            bias = randrange(1, 100)
+            if (((persons_children / self.global_num_nodes) * 100) < threshold_to_mark) and persons_children != 0 and bias > 50:
                 person.covid_affected = COVID_Status.AFFECTED
 
     def generate_person(self):
@@ -200,7 +201,7 @@ class Generator:
 if __name__ == "__main__":
 
     generator = Generator("data/names_to_sample.txt",
-                          "data/addresses_to_sample.txt",8, 3, 5)
+                          "data/addresses_to_sample.txt",4, 3, 5)
     root = generator.generate_data()
     generator.mark_affected(root, 2)
     # generator.produce_csv(root, "test_with_affected_marked.csv")
