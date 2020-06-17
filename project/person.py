@@ -32,4 +32,5 @@ class Person:
         self.covid_affected = covid_affected
 
     def __str__(self):
-        return "{} {} {} {} {}".format(self.person_id, self.first_name, self.last_name,str(self.address), self.covid_affected)
+        return "{}, {}, {}, {}, {}".format(self.person_id, self.first_name, self.last_name, str(self.address), self.covid_affected.name)
+
