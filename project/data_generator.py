@@ -9,6 +9,7 @@ from person import (Person, Address, COVID_Status)
 from random import randrange, shuffle
 from queue import Queue
 import logging
+from uuid import uuid1
 
 
 log = logging.getLogger("main-logger")
@@ -20,8 +21,8 @@ logging.basicConfig(level=logging.CRITICAL)
 class PersonGenerator(Person):
     """A person with children list to help with generation"""
 
-    def __init__(self, first_name, last_name, address):
-        super().__init__(first_name, last_name, address)
+    def __init__(self, person_id, first_name, last_name, address):
+        super().__init__(person_id, first_name, last_name, address)
         self.children = []
 
     def add_child(self, person):
@@ -30,7 +31,7 @@ class PersonGenerator(Person):
     def __str__(self):
         children = ""
         for child in self.children:
-            children += ","+child.person_id
+            children += " "+child.person_id
 
         return super().__str__()+children
 
@@ -176,6 +177,7 @@ class Generator:
             self.states[self.index]
         )
         person = PersonGenerator(
+            str(uuid1()),
             self.first_names[self.index],
             self.last_names[self.index],
             address
@@ -201,10 +203,10 @@ class Generator:
 if __name__ == "__main__":
 
     generator = Generator("data/names_to_sample.txt",
-                          "data/addresses_to_sample.txt",4, 3, 5)
+                          "data/addresses_to_sample.txt",6, 3, 5)
     root = generator.generate_data()
-    generator.mark_affected(root, 2)
-    # generator.produce_csv(root, "test_with_affected_marked.csv")
+    generator.mark_affected(root, 0.1)
+    generator.produce_csv(root, "test_with_affected_marked.csv")
 
     queue = Queue()
     queue.put(root)

@@ -1,7 +1,7 @@
 """
 Tree structure with basic methods built in
 """
-from person import (Address, Person)
+from person import (Address, Person,COVID_Status)
 import csv
 
 class Node:
@@ -49,7 +49,8 @@ class Tree:
 
         if not node:
             node = self.root
-        if node.person.covid_affected == COVID_Status.AFFECTED.name:
+
+        if node.person.is_person_affected():
             self.affected += 1
             
         if len(node.children) == 0: # base case
@@ -79,13 +80,20 @@ if __name__ == "__main__":
     children = []
 
     # Reading CSV file and adding each person to lists
-    with open('example.csv') as file:
+    with open('test_with_affected_marked.csv') as file:
         reader = csv.reader(file,delimiter=',')
         for row in reader:
             street, city, state = row[3],row[4],row[5]
             address = Address(street=street, city=city, state=state)
 
             person_id, first_name, last_name ,covid_affected =  row[0], row[1], row[2], row[6]
+            covid_affected = covid_affected.strip()
+            if(covid_affected == "UNKNOWN"):
+                covid_affected = COVID_Status.UNKNOWN
+            elif(covid_affected == "AFFECTED"):
+                covid_affected = COVID_Status.AFFECTED
+            else:
+                covid_affected = COVID_Status.NOT_AFFECTED
             person = Person(person_id=person_id, first_name=first_name, last_name=last_name,\
                     covid_affected=covid_affected, address=address)
 
@@ -106,6 +114,8 @@ if __name__ == "__main__":
     for person,children in zip(people,children):
         curr = Node(person=person, children=children)
         tree.insert(person.person_id, curr)
+
+    print(tree.get_affected_percentage())
     
     """
     examples that might be useful for print method and affected method:

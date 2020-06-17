@@ -31,6 +31,9 @@ class Person:
         self.address = address
         self.covid_affected = covid_affected
 
+    def is_person_affected(self):
+        return self.covid_affected is COVID_Status.AFFECTED
+
     def __str__(self):
-        return "{}, {}, {}, {}, {}".format(self.person_id, self.first_name, self.last_name, str(self.address), self.covid_affected.name)
+        return "{}, {}, {}, {}, {},".format(self.person_id, self.first_name, self.last_name, str(self.address), self.covid_affected.name)
 
