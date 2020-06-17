@@ -3,7 +3,6 @@ Person related classes
 """
 
 from enum import Enum
-from uuid import uuid1
 
 
 class COVID_Status(Enum):
@@ -25,8 +24,8 @@ class Address:
 class Person:
     """A representation of a single person in the COVID-19 data"""
 
-    def __init__(self, first_name, last_name, address, covid_affected=COVID_Status.UNKNOWN):
-        self.person_id = str(uuid1())
+    def __init__(self, person_id,first_name, last_name, address, covid_affected=COVID_Status.UNKNOWN):
+        self.person_id = person_id
         self.first_name = first_name
         self.last_name = last_name
         self.address = address
@@ -34,3 +33,4 @@ class Person:
 
     def __str__(self):
         return "{}, {}, {}, {}, {}".format(self.person_id, self.first_name, self.last_name, str(self.address), self.covid_affected.name)
+

@@ -1,3 +1,6 @@
- 1, Makonnen, Makonnen, 123 main, City 1, VA , Uknown, [2,3,4]
-ID, First name, Last name, Street, City, State, Covid_affected, [children ids]
-ID, First name, Last name, Street, City, State, Covid_affected, [children ids]
+1,Makonnen,Makonnen,Main St,City 1,VA ,Unknown,2 3
+2,Youssef,Errami,Lambeth Ln,City 1,VA ,Unknown,4 5
+3,John,Smith,Stevenson Ave,City 1,VA ,Unknown,6
+4,Joseff,Medina,McCormick St,City 1,VA ,Unknown,
+5,Steve,Robertson,Yoakum Pkw,City 1,VA ,Unknown,
+6,Bill,Goldman,Yoakum Pkw,City 1,VA ,Unknown,
