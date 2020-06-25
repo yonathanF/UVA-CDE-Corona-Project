@@ -76,6 +76,15 @@ class Tree:
             self.print_all_nodes(self.nodes[each])
         return
 
+    def number_of_people(self, node):
+        """Counts the number of people in the data set"""
+        count = 1
+        node=self.nodes.get(node)
+        for child in node.children:
+            count += self.number_of_people(child)
+
+        return count
+
 
 if __name__ == "__main__":
     # Lists Holding People and Children information
@@ -83,7 +92,7 @@ if __name__ == "__main__":
     children = []
 
     # Reading CSV file and adding each person to lists
-    with open('test_with_affected_marked.csv') as file:
+    with open('data/test_with_affected_marked.csv') as file:
         reader = csv.reader(file, delimiter=',')
         for row in reader:
             street, city, state = row[3], row[4], row[5]
@@ -118,7 +127,8 @@ if __name__ == "__main__":
         curr = Node(person=person, children=children)
         tree.insert(person.person_id, curr)
 
-    print(tree.get_affected_percentage())
+    # print(tree.get_affected_percentage())
+    print(tree.number_of_people(root.person.person_id))
 
     """
     examples that might be useful for print method and affected method:
