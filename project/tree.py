@@ -76,10 +76,10 @@ class Tree:
             self.print_all_nodes(self.nodes[each])
         return
 
-    def number_of_people(self, node):
+    def number_of_people(self, node_id):
         """Counts the number of people in the data set"""
         count = 1
-        node=self.nodes.get(node)
+        node = self.nodes.get(node_id)
         for child in node.children:
             count += self.number_of_people(child)
 
