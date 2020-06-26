@@ -10,9 +10,9 @@ class Node:
     A single entity in the tree
     """
 
-    def __init__(self, person, children):
+    def __init__(self, person):
         self.person = person
-        self.children = children
+        self.children = []
 
     def __str__(self):
         return f"Person ID: {self.person.person_id} | Person First Name: {self.person.first_name} | Person Children IDs: {self.children}"
@@ -23,7 +23,7 @@ class Tree:
     A tree representation of the COVID-19 data
     """
 
-    def __init__(self, root, count=0, affected=0):
+    def __init__(self, root=None, count=0, affected=0):
         self.root = root
         self.nodes = {}
         self.count = count
@@ -73,13 +73,12 @@ class Tree:
         if len(node.children) == 0:  # base case
             return
         for each in node.children:
-            self.print_all_nodes(self.nodes[each])
+            self.print_all_nodes(each)
         return
 
     def number_of_people(self, node_id):
         """Counts the number of people in the data set"""
         count = 1
-        node = self.nodes.get(node_id)
         for child in node.children:
             count += self.number_of_people(child)
 
@@ -119,20 +118,24 @@ if __name__ == "__main__":
     Setting root node for the tree. To be used as the starting point for 
     the print_all_nodes and get_affected_percentage method calls
     """
-    root = Node(people[0], children[0])
-    tree = Tree(root=root)
 
-    # For each person/child in our data add it to our tree
-    for person, children in zip(people, children):
-        curr = Node(person=person, children=children)
-        tree.insert(person.person_id, curr)
+    nodes = {}
+    for person in people:
+        nodes[person.person_id] = Node(person=person)
 
+    tree = Tree()
+
+    for person, child in zip(people, children):
+        pid = person.person_id
+        for c in child:
+            curr_child = nodes[c]
+            nodes[pid].children.append(curr_child)
+        if not tree.root:
+            tree.root = nodes[pid]
+        else:
+            tree.insert(pid, nodes[pid])
+
+    # print(len(tree.root.children))
+    # print(tree.print_all_nodes())
     # print(tree.get_affected_percentage())
-    print(tree.number_of_people(root.person.person_id))
-
-    """
-    examples that might be useful for print method and affected method:
-    tree.root gives you the node for the tree.
-    tree.root.children gives you list of IDs for root nodes children
-    tree.nodes['2'] gives you the node with ID 2
-    """
+    print(tree.number_of_people(tree.root))
