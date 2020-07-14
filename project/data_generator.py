@@ -15,7 +15,7 @@ from uuid import uuid1
 log = logging.getLogger("main-logger")
 s = logging.StreamHandler()
 log.addHandler(s)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.CRITICAL)
 
 
 class PersonGenerator(Person):
@@ -24,6 +24,7 @@ class PersonGenerator(Person):
     def __init__(self, person_id, first_name, last_name, address):
         super().__init__(person_id, first_name, last_name, address)
         self.children = []
+        self.visited = False
 
     def add_child(self, person):
         self.children.append(person)
@@ -103,7 +104,7 @@ class Generator:
         """
         Input: the address file we are parsing
         Return: list of streets, list of cities and list states
-        Notes: Indecies of the return lists refer to each other 
+        Notes: Indecies of the return lists refer to each other
                (the street at index n corresponds to the city and state at index n)
         """
         file_ = open(filename, "r+")
@@ -135,18 +136,27 @@ class Generator:
             stack, output = [root, ], []
             while stack:
                 root = stack.pop()
+                if root.visited:
+                    continue
+                else:
+                    root.visited = True
                 output.append(root)
                 stack.extend(root.children[::-1])
 
             return output
 
         output_list = dfs(root)
-        log.debug("Finished dfs in mark affected")
 
         # count the number of total children per node
         def count(person):
             num_of_children = 1
+
             for child in person.children:
+
+                if child.visited:
+                    continue
+                else:
+                    child.visited = True
                 num_of_children += count(child)
             return num_of_children
 
@@ -200,17 +210,27 @@ class Generator:
         with open(file_name, 'w') as output_file:
             while not queue.empty():
                 node = queue.get()
+                if node.visited:
+                    continue
+                else:
+                    node.visited = True
+
                 output_file.write(str(node)+"\n")
                 for child in node.children:
                     queue.put(child)
 
-    def produce_graph_viz(self):
+    def produce_graph_viz(self, root):
         queue = Queue()
-        queue.put(self.root)
+        queue.put(root)
         red = "[color=\"0.000 1.000 1.000\"]"
         blue = "[color=\"0.603 0.258 1.000\"]"
         while not queue.empty():
             node = queue.get()
+            if not node.visited:
+                continue
+            else:
+                node.visited = False
+
             for child in node.children:
                 if child.covid_affected == COVID_Status.AFFECTED:
                     child_color = red
@@ -228,19 +248,23 @@ class Generator:
                 print(f"\"{child.person_id}\" {child_color};")
                 queue.put(child)
 
-    def convert_to_graph(self):
+    def convert_to_graph(self, root):
         def convert_to_list(root):
-            log.debug("in convert")
             queue = Queue()
             queue.put(root)
             node_list = []
             while not queue.empty():
                 node = queue.get()
+
+                if not node.visited:
+                    continue
+                else:
+                    node.visited = False
+
                 node_list.append(node)
                 for child in node.children:
                     queue.put(child)
 
-            log.debug("out of convert")
             return node_list
 
         def pick_two():
@@ -249,21 +273,34 @@ class Generator:
                 node1, node2 = choice(node_list), choice(node_list)
             return node1, node2
 
-        node_list = convert_to_list(self.root)
-        print("size of node list: ", node_list.count)
+        node_list = convert_to_list(root)
+
+        dm = self.degree_max
+
+        def f(item):
+            return len(item.children) < dm
+
         current_conn = 0
-        while current_conn < self.graph_edge:
+        failed_attempts = 0
+        while current_conn < self.graph_edge and failed_attempts < 10:
             node1, node2 = pick_two()
-            if node1.children.count < self.degree_max and node2.children.count < self.degree_max:
+            log.debug("Current conn: "+str(current_conn))
+
+            if len(node1.children) < self.degree_max and len(node2.children) < self.degree_max:
                 node1.children.append(node2)
                 node2.children.append(node1)
                 current_conn += 1
+                failed_attempts = 0
+            else:
+                failed_attempts += 1
+
+            node_list = list(filter(f, node_list))
 
 
 if __name__ == "__main__":
 
     generator = Generator("data/names_to_sample.txt",
-                          "data/addresses_to_sample.txt", depth_limit=4, min_children=3, max_children=5, degree_max=5, graph_edge=10)
+                          "data/addresses_to_sample.txt", depth_limit=4, min_children=3, max_children=5, degree_max=5, graph_edge=12)
 
     log.debug("Created the generator")
 
@@ -273,8 +310,11 @@ if __name__ == "__main__":
     generator.mark_affected(root, 0.1)
     log.debug("Marked the affected")
 
-    generator.convert_to_graph()
+    generator.convert_to_graph(root)
+    log.debug("Finished converting to graph")
 
     generator.produce_csv(root, "test_with_affected_marked.csv")
-    generator.produce_graph_viz()
+    log.debug("Finished producing the csv")
+
+    generator.produce_graph_viz(root)
 
