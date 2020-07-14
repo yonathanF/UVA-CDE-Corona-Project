@@ -1,8 +1,11 @@
 """
 Tree structure with basic methods built in
 """
+
 from person import (Address, Person, COVID_Status)
+from basic_dts import (Stack, Queue)
 import csv
+import random
 
 
 class Node:
@@ -13,6 +16,9 @@ class Node:
     def __init__(self, person):
         self.person = person
         self.children = []
+
+    def __eq__(self, other):
+        return self.person.person_id == other.person.person_id
 
     def __str__(self):
         return f"Person ID: {self.person.person_id} | Person First Name: {self.person.first_name} | Person Children IDs: {self.children}"
@@ -76,7 +82,44 @@ class Tree:
             self.print_all_nodes(each)
         return
 
-    def number_of_people(self, node_id):
+    def iterative_dfs(self, start_node, target_node):
+        """Iterative implementation of DFS"""
+
+        stack = Stack()
+        stack.push(start_node)
+        path = []
+
+        while not stack.empty():
+            current_node = stack.pop()
+            path.append(current_node)
+
+            if current_node == target_node:
+                return path
+            elif not current_node.children:
+                path.pop()
+
+            for child in current_node.children:
+                stack.push(child)
+
+        return []
+
+    def iterative_bfs(self, start_node, target_node):
+        """Iterative implementation of BFS"""
+
+        queue = Queue()
+        queue.enqueue(start_node)
+        found_target = False
+
+        while not queue.empty():
+            current_node = queue.dequeue()
+            if current_node == target_node:
+                found_target = True
+            for child in current_node.children:
+                queue.enqueue(child)
+
+        return found_target
+
+    def number_of_people(self, node):
         """Counts the number of people in the data set"""
         count = 1
         for child in node.children:
@@ -115,7 +158,7 @@ if __name__ == "__main__":
             children.append(contacts)
 
     """
-    Setting root node for the tree. To be used as the starting point for 
+    Setting root node for the tree. To be used as the starting point for
     the print_all_nodes and get_affected_percentage method calls
     """
 
@@ -138,4 +181,25 @@ if __name__ == "__main__":
     # print(len(tree.root.children))
     # print(tree.print_all_nodes())
     # print(tree.get_affected_percentage())
-    print(tree.number_of_people(tree.root))
+    # print(tree.number_of_people(tree.root))
+
+    # tree2 = Tree()
+    # root = Node(Person(0, "a", "b", "123"))
+    # n1 = Node(Person(1, "a", "b", "123"))
+    # n2 = Node(Person(2, "a", "b", "123"))
+    # n3 = Node(Person(3, "a", "b", "123"))
+    # n4 = Node(Person(4, "a", "b", "123"))
+    # n5 = Node(Person(5, "a", "b", "123"))
+# root.children = [n1] n1.children = [n2, n3, n4, n5]
+    # # n2.children = [n3]
+    # # n3.children = [n4]
+    # # n4.children = [n5]
+    # tree2.root = root
+
+    # # print(tree2.number_of_people(tree2.root))
+    target = random.choice(list(nodes.values()))
+    for n in tree.iterative_dfs(tree.root, target):
+        print(str(n.person.first_name), end=" --> ")
+    # print(tree.iterative_bfs(tree.root, target))
+    # print(tree.iterative_dfs(tree.root, Node(Person("123", "t", "l", "123"))))
+    # print(tree.iterative_bfs(tree.root, Node(Person("123", "t", "l", "123"))))
