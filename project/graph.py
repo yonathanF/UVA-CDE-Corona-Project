@@ -56,22 +56,29 @@ class Graph:
     def get_affected_percentage(self, node=None):
         """
         Return the percentage of affected nodes in the whole graph.
-        """
-        self.count += 1
 
-        if not node:
-            node = self.root
+        TODO: recussively count the affected
+        """
+
+        node = node if node else self.root
+
+        if node.visited:
+            return
+        else:
+            node.visited = True
+
+        self.count += 1
 
         if node.person.is_person_affected():
             self.affected += 1
 
-        if len(node.neighbors) == 0:  # base case
+        if node.neighbors.count == 0:  # base case
             return
 
         for each in node.neighbors:
             self.get_affected_percentage(each)
 
-        return str((self.affected / self.count) * 100) + "%"
+        return (self.affected / self.count) * 100
 
     def print_all_nodes(self, node=None):
         """
@@ -80,12 +87,18 @@ class Graph:
         if not node:
             node = self.root
 
+        if node.visited:
+            return
+        else:
+            node.visited = True
+
         print(str(node))
 
-        if len(node.neighbors) == 0:  # base case
+        if node.neighbors.count == 0:  # base case
             return
         for each in node.neighbors:
             self.print_all_nodes(each)
+
         return
 
     def iterative_dfs(self, start_node, target_node):
@@ -97,6 +110,11 @@ class Graph:
 
         while not stack.empty():
             current_node = stack.pop()
+            if current_node.visited:
+                continue
+            else:
+                current_node.visited = True
+
             path.append(current_node)
 
             if current_node == target_node:
@@ -118,6 +136,11 @@ class Graph:
 
         while not queue.empty():
             current_node = queue.dequeue()
+            if current_node.visited:
+                continue
+            else:
+                current_node.visited = True
+
             if current_node == target_node:
                 found_target = True
             for child in current_node.neighbors:
@@ -138,7 +161,7 @@ if __name__ == "__main__":
     graph = Graph()
     root = Node(Person(0, "a", "b", "123"))
     n1 = Node(Person(1, "a", "b", "123"))
-    n2 = Node(Person(2, "a", "b", "123"))
+    n2 = Node(Person(2, "a", "b", "123", COVID_Status.AFFECTED))
     n3 = Node(Person(3, "a", "b", "123"))
     n4 = Node(Person(4, "a", "b", "123"))
     n5 = Node(Person(5, "a", "b", "123"))
@@ -150,6 +173,8 @@ if __name__ == "__main__":
     n4.neighbors = [n5]
     graph.root = root
 
-    print(graph.get_affected_percentage())
+    # print(graph.get_affected_percentage())
+    # graph.print_all_nodes()
+    # print(graph.iterative_bfs(root, Node(Person("123", "t", "l", "123"))))
     # for n in graph.iterative_dfs(graph.root, n5):
     # print(str(n.person.person_id), end=" --> ")
