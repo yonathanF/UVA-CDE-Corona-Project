@@ -5,8 +5,8 @@ File format:
      ID, First name, Last name, Street, City, State,
      Covid_affected, [children ids]
 """
-from person import (Person, Address, COVID_Status)
-from random import randrange, shuffle
+from personal_information import (Person, Address, COVID_Status)
+from random import randrange, shuffle, choice
 from queue import Queue
 import logging
 from uuid import uuid1
@@ -15,7 +15,7 @@ from uuid import uuid1
 log = logging.getLogger("main-logger")
 s = logging.StreamHandler()
 log.addHandler(s)
-logging.basicConfig(level=logging.CRITICAL)
+logging.basicConfig(level=logging.DEBUG)
 
 
 class PersonGenerator(Person):
@@ -39,7 +39,7 @@ class PersonGenerator(Person):
 class Generator:
     """Base data generator"""
 
-    def __init__(self, name_file, addresses_file, depth_limit, min_children, max_children):
+    def __init__(self, name_file, addresses_file, depth_limit, min_children, max_children, degree_max, graph_edge):
         self.first_names, self.last_names = self.name_parser(name_file)
         self.streets, self.cities, self.states = self.address_parser(
             addresses_file)
@@ -47,6 +47,8 @@ class Generator:
         self.max_children = max_children
         self.depth_limit = depth_limit
         self.global_num_nodes = 0
+        self.degree_max = degree_max
+        self.graph_edge = graph_edge
 
         # index in the information lists above, used in generate_person function
         self.index = 0
@@ -59,20 +61,22 @@ class Generator:
         self.global_num_nodes += 1
 
         def generate_single_path(self, parent, current_depth):
-            log.debug("Depth:  {}".format(current_depth))
+            # log.debug("Depth:  {}".format(current_depth))
             if current_depth >= self.depth_limit:
                 return None
 
             num_children = randrange(self.min_children, self.max_children)
             for _ in range(num_children):
                 self.global_num_nodes += 1
-                parent.add_child(self.generate_person())
+                new_child = self.generate_person()
+                parent.add_child(new_child)
+                new_child.add_child(parent)
 
-            log.debug(f"\t Parent has {len(parent.children)} children")
+            # log.debug(f"\t Parent has {len(parent.children)} children")
             for child_index in range(num_children):
                 generate_single_path(self,
                                      parent.children[child_index], current_depth+1)
-                log.debug(f"\t Finished child {child_index} path")
+                # log.debug(f"\t Finished child {child_index} path")
 
         generate_single_path(self, root, 0)
         return root
@@ -137,6 +141,7 @@ class Generator:
             return output
 
         output_list = dfs(root)
+        log.debug("Finished dfs in mark affected")
 
         # count the number of total children per node
         def count(person):
@@ -199,34 +204,77 @@ class Generator:
                 for child in node.children:
                     queue.put(child)
 
+    def produce_graph_viz(self):
+        queue = Queue()
+        queue.put(self.root)
+        red = "[color=\"0.000 1.000 1.000\"]"
+        blue = "[color=\"0.603 0.258 1.000\"]"
+        while not queue.empty():
+            node = queue.get()
+            for child in node.children:
+                if child.covid_affected == COVID_Status.AFFECTED:
+                    child_color = red
+                else:
+                    child_color = blue
+
+                if node.covid_affected == COVID_Status.AFFECTED:
+                    node_color = red
+                else:
+                    node_color = blue
+
+                print(
+                    f"\"{node.person_id}\" -> \"{child.person_id}\"")
+                print(f"\"{node.person_id}\" {node_color};")
+                print(f"\"{child.person_id}\" {child_color};")
+                queue.put(child)
+
+    def convert_to_graph(self):
+        def convert_to_list(root):
+            log.debug("in convert")
+            queue = Queue()
+            queue.put(root)
+            node_list = []
+            while not queue.empty():
+                node = queue.get()
+                node_list.append(node)
+                for child in node.children:
+                    queue.put(child)
+
+            log.debug("out of convert")
+            return node_list
+
+        def pick_two():
+            node1, node2 = choice(node_list), choice(node_list)
+            while node1 == node2:
+                node1, node2 = choice(node_list), choice(node_list)
+            return node1, node2
+
+        node_list = convert_to_list(self.root)
+        print("size of node list: ", node_list.count)
+        current_conn = 0
+        while current_conn < self.graph_edge:
+            node1, node2 = pick_two()
+            if node1.children.count < self.degree_max and node2.children.count < self.degree_max:
+                node1.children.append(node2)
+                node2.children.append(node1)
+                current_conn += 1
+
 
 if __name__ == "__main__":
 
     generator = Generator("data/names_to_sample.txt",
-                          "data/addresses_to_sample.txt",6, 3, 5)
+                          "data/addresses_to_sample.txt", depth_limit=4, min_children=3, max_children=5, degree_max=5, graph_edge=10)
+
+    log.debug("Created the generator")
+
     root = generator.generate_data()
+    log.debug("Generated data")
+
     generator.mark_affected(root, 0.1)
+    log.debug("Marked the affected")
+
+    generator.convert_to_graph()
+
     generator.produce_csv(root, "test_with_affected_marked.csv")
+    generator.produce_graph_viz()
 
-    queue = Queue()
-    queue.put(root)
-    red = "[color=\"0.000 1.000 1.000\"]"
-    blue = "[color=\"0.603 0.258 1.000\"]"
-    while not queue.empty():
-        node = queue.get()
-        for child in node.children:
-            if child.covid_affected == COVID_Status.AFFECTED:
-                child_color = red
-            else:
-                child_color = blue
-
-            if node.covid_affected == COVID_Status.AFFECTED:
-                node_color = red
-            else:
-                node_color = blue
-
-            print(
-                f"\"{node.person_id}\" -> \"{child.person_id}\"")
-            print(f"\"{node.person_id}\" {node_color};")
-            print(f"\"{child.person_id}\" {child_color};")
-            queue.put(child)
