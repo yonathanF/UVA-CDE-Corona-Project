@@ -1,32 +1,33 @@
 """
-Tree structure with basic methods built in
+Graph structure with basic methods built in
 """
 
-from person import (Address, Person, COVID_Status)
-from basic_dts import (Stack, Queue)
+from personal_information import (Address, Person, COVID_Status)
+from basic_data_structures import (Stack, Queue)
 import csv
 import random
 
 
 class Node:
     """
-    A single entity in the tree
+    A single entity in the graph
     """
 
     def __init__(self, person):
         self.person = person
-        self.children = []
+        self.neighbors = []
+        self.visited = False
 
     def __eq__(self, other):
         return self.person.person_id == other.person.person_id
 
     def __str__(self):
-        return f"Person ID: {self.person.person_id} | Person First Name: {self.person.first_name} | Person Children IDs: {self.children}"
+        return f"Person ID: {self.person.person_id} | Person First Name: {self.person.first_name} | Person neighbors IDs: {self.neighbors}"
 
 
-class Tree:
+class Graph:
     """
-    A tree representation of the COVID-19 data
+    A graph representation of the COVID-19 data
     """
 
     def __init__(self, root=None, count=0, affected=0):
@@ -37,21 +38,21 @@ class Tree:
 
     def insert(self, id, node):
         """
-        Inserts the node somewhere in the tree
+        Inserts the node somewhere in the graph
         """
         if id not in self.nodes:
             self.nodes[id] = node
 
     def search(self, node):
         """
-        Find the node in the tree. Return empty node
+        Find the node in the graph. Return empty node
         if not found
         """
         pass
 
     def get_affected_percentage(self, node=None):
         """
-        Return the percentage of affected nodes in the whole tree.
+        Return the percentage of affected nodes in the whole graph.
         """
         self.count += 1
 
@@ -61,10 +62,10 @@ class Tree:
         if node.person.is_person_affected():
             self.affected += 1
 
-        if len(node.children) == 0:  # base case
+        if len(node.neighbors) == 0:  # base case
             return
-        for each in node.children:
-            self.get_affected_percentage(tree.nodes[each])
+        for each in node.neighbors:
+            self.get_affected_percentage(graph.nodes[each])
         return str((self.affected / self.count) * 100) + "%"
 
     def print_all_nodes(self, node=None):
@@ -76,9 +77,9 @@ class Tree:
 
         print(str(node))
 
-        if len(node.children) == 0:  # base case
+        if len(node.neighbors) == 0:  # base case
             return
-        for each in node.children:
+        for each in node.neighbors:
             self.print_all_nodes(each)
         return
 
@@ -95,10 +96,10 @@ class Tree:
 
             if current_node == target_node:
                 return path
-            elif not current_node.children:
+            elif not current_node.neighbors:
                 path.pop()
 
-            for child in current_node.children:
+            for child in current_node.neighbors:
                 stack.push(child)
 
         return []
@@ -114,7 +115,7 @@ class Tree:
             current_node = queue.dequeue()
             if current_node == target_node:
                 found_target = True
-            for child in current_node.children:
+            for child in current_node.neighbors:
                 queue.enqueue(child)
 
         return found_target
@@ -122,84 +123,27 @@ class Tree:
     def number_of_people(self, node):
         """Counts the number of people in the data set"""
         count = 1
-        for child in node.children:
+        for child in node.neighbors:
             count += self.number_of_people(child)
 
         return count
 
 
 if __name__ == "__main__":
-    # Lists Holding People and Children information
-    people = []
-    children = []
+    graph = Graph()
+    root = Node(Person(0, "a", "b", "123"))
+    n1 = Node(Person(1, "a", "b", "123"))
+    n2 = Node(Person(2, "a", "b", "123"))
+    n3 = Node(Person(3, "a", "b", "123"))
+    n4 = Node(Person(4, "a", "b", "123"))
+    n5 = Node(Person(5, "a", "b", "123"))
 
-    # Reading CSV file and adding each person to lists
-    with open('data/test_with_affected_marked.csv') as file:
-        reader = csv.reader(file, delimiter=',')
-        for row in reader:
-            street, city, state = row[3], row[4], row[5]
-            address = Address(street=street, city=city, state=state)
+    root.neighbors = [n1]
+    n1.neighbors = [n2, n3, n4, n5]
+    n2.neighbors = [n3]
+    n3.neighbors = [n4]
+    n4.neighbors = [n5]
+    graph.root = root
 
-            person_id, first_name, last_name, covid_affected = row[0], row[1], row[2], row[6]
-            covid_affected = covid_affected.strip()
-            if(covid_affected == "UNKNOWN"):
-                covid_affected = COVID_Status.UNKNOWN
-            elif(covid_affected == "AFFECTED"):
-                covid_affected = COVID_Status.AFFECTED
-            else:
-                covid_affected = COVID_Status.NOT_AFFECTED
-            person = Person(person_id=person_id, first_name=first_name, last_name=last_name,
-                            covid_affected=covid_affected, address=address)
-
-            # Add newly created person object to people list
-            people.append(person)
-            # Parse children info and add to children list
-            contacts = row[7].split()
-            children.append(contacts)
-
-    """
-    Setting root node for the tree. To be used as the starting point for
-    the print_all_nodes and get_affected_percentage method calls
-    """
-
-    nodes = {}
-    for person in people:
-        nodes[person.person_id] = Node(person=person)
-
-    tree = Tree()
-
-    for person, child in zip(people, children):
-        pid = person.person_id
-        for c in child:
-            curr_child = nodes[c]
-            nodes[pid].children.append(curr_child)
-        if not tree.root:
-            tree.root = nodes[pid]
-        else:
-            tree.insert(pid, nodes[pid])
-
-    # print(len(tree.root.children))
-    # print(tree.print_all_nodes())
-    # print(tree.get_affected_percentage())
-    # print(tree.number_of_people(tree.root))
-
-    # tree2 = Tree()
-    # root = Node(Person(0, "a", "b", "123"))
-    # n1 = Node(Person(1, "a", "b", "123"))
-    # n2 = Node(Person(2, "a", "b", "123"))
-    # n3 = Node(Person(3, "a", "b", "123"))
-    # n4 = Node(Person(4, "a", "b", "123"))
-    # n5 = Node(Person(5, "a", "b", "123"))
-# root.children = [n1] n1.children = [n2, n3, n4, n5]
-    # # n2.children = [n3]
-    # # n3.children = [n4]
-    # # n4.children = [n5]
-    # tree2.root = root
-
-    # # print(tree2.number_of_people(tree2.root))
-    target = random.choice(list(nodes.values()))
-    for n in tree.iterative_dfs(tree.root, target):
-        print(str(n.person.first_name), end=" --> ")
-    # print(tree.iterative_bfs(tree.root, target))
-    # print(tree.iterative_dfs(tree.root, Node(Person("123", "t", "l", "123"))))
-    # print(tree.iterative_bfs(tree.root, Node(Person("123", "t", "l", "123"))))
+    for n in graph.iterative_dfs(graph.root, n5):
+        print(str(n.person.person_id), end=" --> ")
