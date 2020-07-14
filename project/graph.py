@@ -21,6 +21,9 @@ class Node:
     def __eq__(self, other):
         return self.person.person_id == other.person.person_id
 
+    def __hash__(self):
+        return self.person.person_id
+
     def __str__(self):
         return f"Person ID: {self.person.person_id} | Person First Name: {self.person.first_name} | Person neighbors IDs: {self.neighbors}"
 
@@ -64,8 +67,10 @@ class Graph:
 
         if len(node.neighbors) == 0:  # base case
             return
+
         for each in node.neighbors:
-            self.get_affected_percentage(graph.nodes[each])
+            self.get_affected_percentage(each)
+
         return str((self.affected / self.count) * 100) + "%"
 
     def print_all_nodes(self, node=None):
@@ -145,5 +150,6 @@ if __name__ == "__main__":
     n4.neighbors = [n5]
     graph.root = root
 
-    for n in graph.iterative_dfs(graph.root, n5):
-        print(str(n.person.person_id), end=" --> ")
+    print(graph.get_affected_percentage())
+    # for n in graph.iterative_dfs(graph.root, n5):
+    # print(str(n.person.person_id), end=" --> ")
