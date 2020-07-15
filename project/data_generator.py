@@ -150,13 +150,12 @@ class Generator:
         # count the number of total children per node
         def count(person):
             num_of_children = 1
+            if person.visited:
+                return 0
+            else:
+                person.visited = True
 
             for child in person.children:
-
-                if child.visited:
-                    continue
-                else:
-                    child.visited = True
                 num_of_children += count(child)
             return num_of_children
 
@@ -166,9 +165,10 @@ class Generator:
         # mark that person as affected
         for person in output_list:
             # we subtract one because we don't want to include ourself
-            persons_children = count(person) - 1
+            # persons_children = count(person) - 1
+            # print("person childern: ", persons_children)
             bias = randrange(1, 100)
-            if (((persons_children / self.global_num_nodes) * 100) < threshold_to_mark) and persons_children != 0 and bias > 50:
+            if threshold_to_mark > bias:
                 person.covid_affected = COVID_Status.AFFECTED
 
     def generate_person(self):
@@ -307,7 +307,7 @@ if __name__ == "__main__":
     root = generator.generate_data()
     log.debug("Generated data")
 
-    generator.mark_affected(root, 0.1)
+    generator.mark_affected(root, 20)
     log.debug("Marked the affected")
 
     generator.convert_to_graph(root)
@@ -316,5 +316,5 @@ if __name__ == "__main__":
     generator.produce_csv(root, "test_with_affected_marked.csv")
     log.debug("Finished producing the csv")
 
-    generator.produce_graph_viz(root)
+    # generator.produce_graph_viz(root)
 

@@ -152,6 +152,10 @@ class Graph:
         """Counts the number of people in the data set"""
         count = 1
         for child in node.neighbors:
+            if child.visited:
+                continue
+            else:
+                child.visited = True
             count += self.number_of_people(child)
 
         return count
