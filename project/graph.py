@@ -56,8 +56,6 @@ class Graph:
     def get_affected_percentage(self, node=None):
         """
         Return the percentage of affected nodes in the whole graph.
-
-        TODO: recussively count the affected
         """
 
         node = node if node else self.root
@@ -71,9 +69,11 @@ class Graph:
 
         if node.person.is_person_affected():
             self.affected += 1
-
-        if node.neighbors.count == 0:  # base case
-            return
+            if node.neighbors.count == 0: # base case
+                return
+            else:
+                for each in node.neighbors:
+                    each.person.covid_affected = COVID_Status.AFFECTED
 
         for each in node.neighbors:
             self.get_affected_percentage(each)
