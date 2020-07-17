@@ -316,7 +316,5 @@ if __name__ == "__main__":
     generator.produce_csv(root, "data.csv")
     log.debug("Finished producing the csv")
 
-    generator.produce_graph_viz(root)
-
     # generator.produce_graph_viz(root)
 
