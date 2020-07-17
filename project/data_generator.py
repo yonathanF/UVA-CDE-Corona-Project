@@ -300,21 +300,23 @@ class Generator:
 if __name__ == "__main__":
 
     generator = Generator("data/names_to_sample.txt",
-                          "data/addresses_to_sample.txt", depth_limit=4, min_children=3, max_children=5, degree_max=5, graph_edge=12)
+                          "data/addresses_to_sample.txt", depth_limit=6, min_children=3, max_children=6, degree_max=5, graph_edge=12)
 
     log.debug("Created the generator")
 
     root = generator.generate_data()
     log.debug("Generated data")
 
-    generator.mark_affected(root, 20)
+    generator.mark_affected(root, 9)
     log.debug("Marked the affected")
 
     generator.convert_to_graph(root)
     log.debug("Finished converting to graph")
 
-    generator.produce_csv(root, "test_with_affected_marked.csv")
+    generator.produce_csv(root, "data.csv")
     log.debug("Finished producing the csv")
+
+    generator.produce_graph_viz(root)
 
     # generator.produce_graph_viz(root)
 

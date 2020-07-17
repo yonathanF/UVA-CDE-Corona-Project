@@ -9,7 +9,7 @@ if __name__ == "__main__":
     neighbors = []
 
     # Reading CSV file and adding each person to lists
-    with open('test_with_affected_marked.csv') as file:
+    with open('data.csv') as file:
         reader = csv.reader(file, delimiter=',')
         for row in reader:
             street, city, state = row[3], row[4], row[5]
