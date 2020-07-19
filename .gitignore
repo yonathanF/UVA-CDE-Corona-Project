@@ -1,0 +1,8 @@
+*.swp
+.swo
+.swm
+.swn
+.swl
+.vim/
+
+__pycache__/
