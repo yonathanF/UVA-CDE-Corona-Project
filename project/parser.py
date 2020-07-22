@@ -2,6 +2,9 @@ from graph import (Graph, Node)
 from personal_information import (Person, Address, COVID_Status)
 import csv
 import random
+# import os
+
+# print(os.listdir())
 
 if __name__ == "__main__":
     # Lists Holding People and neighbors information
@@ -9,7 +12,7 @@ if __name__ == "__main__":
     neighbors = []
 
     # Reading CSV file and adding each person to lists
-    with open('data.csv') as file:
+    with open('project/data.csv') as file: # was breaking on my machine if I didn't write out the full path from root
         reader = csv.reader(file, delimiter=',')
         for row in reader:
             street, city, state = row[3], row[4], row[5]
@@ -39,7 +42,7 @@ if __name__ == "__main__":
 
     nodes = {}
     for person in people:
-        nodes[person.person_id] = Node(person=person)
+        nodes[person.person_id] = Node(person=person, weight=random.randint(0,10))
 
     graph = Graph()
 
@@ -59,12 +62,12 @@ if __name__ == "__main__":
     # print(graph.number_of_people(graph.root))
 
     # graph2 = graph()
-    # root = Node(Person(0, "a", "b", "123"))
-    # n1 = Node(Person(1, "a", "b", "123"))
-    # n2 = Node(Person(2, "a", "b", "123"))
-    # n3 = Node(Person(3, "a", "b", "123"))
-    # n4 = Node(Person(4, "a", "b", "123"))
-    # n5 = Node(Person(5, "a", "b", "123"))
+    # root = Node(Person(0, "a", "b", "123"), weight=random.randint(0,10))
+    # n1 = Node(Person(1, "a", "b", "123"), weight=random.randint(0,10))
+    # n2 = Node(Person(2, "a", "b", "123"), weight=random.randint(0,10))
+    # n3 = Node(Person(3, "a", "b", "123"), weight=random.randint(0,10))
+    # n4 = Node(Person(4, "a", "b", "123"), weight=random.randint(0,10))
+    # n5 = Node(Person(5, "a", "b", "123"), weight=random.randint(0,10))
 # root.neighbors = [n1] n1.children = [n2, n3, n4, n5]
     # # n2.neighbors = [n3]
     # # n3.neighbors = [n4]

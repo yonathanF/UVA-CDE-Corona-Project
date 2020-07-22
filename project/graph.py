@@ -13,10 +13,11 @@ class Node:
     A single entity in the graph
     """
 
-    def __init__(self, person):
+    def __init__(self, person,weight):
         self.person = person
         self.neighbors = []
         self.visited = False
+        self.weight = weight
 
     def __eq__(self, other):
         return self.person.person_id == other.person.person_id
@@ -25,7 +26,7 @@ class Node:
         return self.person.person_id
 
     def __str__(self):
-        return f"Person ID: {self.person.person_id} | Person First Name: {self.person.first_name} | Person neighbors IDs: {self.neighbors}"
+        return f"Person ID: {self.person.person_id} | Person First Name: {self.person.first_name} | Person weight: {self.weight} | Person neighbors IDs: {self.neighbors}"
 
 
 class Graph:
@@ -163,12 +164,12 @@ class Graph:
 
 if __name__ == "__main__":
     graph = Graph()
-    root = Node(Person(0, "a", "b", "123"))
-    n1 = Node(Person(1, "a", "b", "123"))
-    n2 = Node(Person(2, "a", "b", "123", COVID_Status.AFFECTED))
-    n3 = Node(Person(3, "a", "b", "123"))
-    n4 = Node(Person(4, "a", "b", "123"))
-    n5 = Node(Person(5, "a", "b", "123"))
+    root = Node(Person(0, "a", "b", "123"), weight=random.randint(0,10))
+    n1 = Node(Person(1, "a", "b", "123"), weight=random.randint(0,10))
+    n2 = Node(Person(2, "a", "b", "123", COVID_Status.AFFECTED), weight=random.randint(0,10))
+    n3 = Node(Person(3, "a", "b", "123"), weight=random.randint(0,10))
+    n4 = Node(Person(4, "a", "b", "123"), weight=random.randint(0,10))
+    n5 = Node(Person(5, "a", "b", "123"), weight=random.randint(0,10))
 
     root.neighbors = [n1]
     n1.neighbors = [n2, n3, n4, n5]
@@ -182,3 +183,4 @@ if __name__ == "__main__":
     # print(graph.iterative_bfs(root, Node(Person("123", "t", "l", "123"))))
     # for n in graph.iterative_dfs(graph.root, n5):
     # print(str(n.person.person_id), end=" --> ")
+    graph.print_all_nodes()
