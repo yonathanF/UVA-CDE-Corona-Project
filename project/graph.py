@@ -164,12 +164,12 @@ class Graph:
 
 if __name__ == "__main__":
     graph = Graph()
-    root = Node(Person(0, "a", "b", "123"), weight=random.randint(0,10))
-    n1 = Node(Person(1, "a", "b", "123"), weight=random.randint(0,10))
-    n2 = Node(Person(2, "a", "b", "123", COVID_Status.AFFECTED), weight=random.randint(0,10))
-    n3 = Node(Person(3, "a", "b", "123"), weight=random.randint(0,10))
-    n4 = Node(Person(4, "a", "b", "123"), weight=random.randint(0,10))
-    n5 = Node(Person(5, "a", "b", "123"), weight=random.randint(0,10))
+    root = Node(Person(0, "a", "b", "123"), weight=random.randint(1,100))
+    n1 = Node(Person(1, "a", "b", "123"), weight=random.randint(1,100))
+    n2 = Node(Person(2, "a", "b", "123", COVID_Status.AFFECTED), weight=random.randint(1,100))
+    n3 = Node(Person(3, "a", "b", "123"), weight=random.randint(1,100))
+    n4 = Node(Person(4, "a", "b", "123"), weight=random.randint(1,100))
+    n5 = Node(Person(5, "a", "b", "123"), weight=random.randint(1,100))
 
     root.neighbors = [n1]
     n1.neighbors = [n2, n3, n4, n5]
