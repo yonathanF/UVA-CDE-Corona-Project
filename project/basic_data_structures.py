@@ -49,7 +49,10 @@ class PriorityQueue:
     def enqueue(self, node):
         """Adds a new item to the queue"""
         self.items.append(node)
-        self.items.sort(key=lambda node: node.path_weight)
+
+    def resort(self):
+        """Orders the queue according to the priority of the nodes"""
+        self.items.sort(key=lambda node: node.path_weight, reverse=True)
 
     def dequeue(self):
         """Removes the oldest item from the queue"""
