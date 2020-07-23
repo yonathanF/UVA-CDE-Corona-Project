@@ -35,3 +35,23 @@ class Queue:
         """Removes the oldest item from the queue"""
         return self.items.pop()
 
+
+class PriorityQueue:
+    """A not-so-efficient implementation of a priority queue"""
+
+    def __init__(self, init_items=None):
+        self.items = init_items if init_items else []
+
+    def empty(self):
+        """Returns true if the stack is empty"""
+        return False if self.items else True
+
+    def enqueue(self, node):
+        """Adds a new item to the queue"""
+        self.items.append(node)
+        self.items.sort(key=lambda node: node.weight)
+
+    def dequeue(self):
+        """Removes the oldest item from the queue"""
+        return self.items.pop()
+
