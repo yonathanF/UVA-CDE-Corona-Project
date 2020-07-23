@@ -39,7 +39,7 @@ if __name__ == "__main__":
     Setting root node for the tree. To be used as the starting point for
     the print_all_nodes and get_affected_percentage method calls
     """
-
+    random.seed(30)
     nodes = {}
     for person in people:
         nodes[person.person_id] = Node(person=person, weight=random.randint(1,100))

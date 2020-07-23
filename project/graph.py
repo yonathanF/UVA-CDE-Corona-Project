@@ -54,7 +54,7 @@ class Graph:
         """
         pass
 
-    def get_affected_percentage(self, node=None):
+    def get_affected_percentage(self, node=None, thres=50):
         """
         Return the percentage of affected nodes in the whole graph.
         """
@@ -68,7 +68,7 @@ class Graph:
 
         self.count += 1
 
-        if node.person.is_person_affected():
+        if node.person.is_person_affected() and node.weight >= thres:
             self.affected += 1
             if node.neighbors.count == 0: # base case
                 return
