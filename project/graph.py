@@ -3,9 +3,12 @@ Graph structure with basic methods built in
 """
 
 from personal_information import (Address, Person, COVID_Status)
-from basic_data_structures import (Stack, Queue)
+from basic_data_structures import (Stack, Queue, PriorityQueue)
 import csv
 import random
+import math
+
+random.seed(42)
 
 
 class Node:
@@ -13,11 +16,13 @@ class Node:
     A single entity in the graph
     """
 
-    def __init__(self, person,weight):
+    def __init__(self, person, weight):
         self.person = person
         self.neighbors = []
         self.visited = False
         self.weight = weight
+        self.path_weight = math.inf
+        self.parent = None
 
     def __eq__(self, other):
         return self.person.person_id == other.person.person_id
@@ -26,7 +31,7 @@ class Node:
         return self.person.person_id
 
     def __str__(self):
-        return f"Person ID: {self.person.person_id} | Person First Name: {self.person.first_name} | Person weight: {self.weight} | Person neighbors IDs: {self.neighbors}"
+        return f"Person ID: {self.person.person_id} | Person First Name: {self.person.first_name} | Person edge weight: {self.weight} | Person neighbors IDs: {self.neighbors} | Person path weight: {self.path_weight}"
 
 
 class Graph:
@@ -36,7 +41,10 @@ class Graph:
 
     def __init__(self, root=None, count=0, affected=0):
         self.root = root
-        self.nodes = {}
+        # Note: this is useful only for testing. The student code should use
+        # the dictionary version
+        self.nodes = []
+        # self.nodes = {}
         self.count = count
         self.affected = affected
 
@@ -70,7 +78,7 @@ class Graph:
 
         if node.person.is_person_affected() and node.weight >= thres:
             self.affected += 1
-            if node.neighbors.count == 0: # base case
+            if node.neighbors.count == 0:  # base case
                 return
             else:
                 for each in node.neighbors:
@@ -93,7 +101,8 @@ class Graph:
         else:
             node.visited = True
 
-        print(str(node))
+        # print(str(node))
+        self.nodes.append(node)
 
         if node.neighbors.count == 0:  # base case
             return
@@ -149,6 +158,42 @@ class Graph:
 
         return found_target
 
+    def find_shortest_path(self, source, target):
+        """An implementation of Dijkstras shortest path algorithm"""
+
+        queue = PriorityQueue()
+        source.path_weight = 0
+        # for node in self.nodes.keys():
+        # Note: this is useful for testing only; student should use the above
+        for node in self.nodes:
+            queue.enqueue(node)
+
+        queue.resort()
+
+        while not queue.empty():
+            current = queue.dequeue()
+
+            current_short_path = current.weight + current.path_weight
+
+            for neighbor in current.neighbors:
+                if neighbor.path_weight > current_short_path:
+                    neighbor.parent = current
+                    neighbor.path_weight = current_short_path
+
+            queue.resort()
+
+    def extract_path(self, source, target):
+        "A utility function to extract the path after running shortest path"
+        if target == source:
+            return [target]
+
+        path = [target]
+        parent_path = self.extract_path(source, target.parent)
+        for node in parent_path:
+            path.append(node)
+
+        return path
+
     def number_of_people(self, node):
         """Counts the number of people in the data set"""
         count = 1
@@ -164,15 +209,16 @@ class Graph:
 
 if __name__ == "__main__":
     graph = Graph()
-    root = Node(Person(0, "a", "b", "123"), weight=random.randint(1,100))
-    n1 = Node(Person(1, "a", "b", "123"), weight=random.randint(1,100))
-    n2 = Node(Person(2, "a", "b", "123", COVID_Status.AFFECTED), weight=random.randint(1,100))
-    n3 = Node(Person(3, "a", "b", "123"), weight=random.randint(1,100))
-    n4 = Node(Person(4, "a", "b", "123"), weight=random.randint(1,100))
-    n5 = Node(Person(5, "a", "b", "123"), weight=random.randint(1,100))
+    root = Node(Person(0, "a", "b", "123"), weight=random.randint(1, 100))
+    n1 = Node(Person(1, "a", "b", "123"), weight=random.randint(1, 100))
+    n2 = Node(Person(2, "a", "b", "123", COVID_Status.AFFECTED),
+              weight=random.randint(1, 100))
+    n3 = Node(Person(3, "a", "b", "123"), weight=random.randint(1, 100))
+    n4 = Node(Person(4, "a", "b", "123"), weight=random.randint(1, 100))
+    n5 = Node(Person(5, "a", "b", "123"), weight=random.randint(1, 100))
 
     root.neighbors = [n1]
-    n1.neighbors = [n2, n3, n4, n5]
+    n1.neighbors = [n2, n3, n4]
     n2.neighbors = [n3]
     n3.neighbors = [n4]
     n4.neighbors = [n5]
@@ -184,3 +230,8 @@ if __name__ == "__main__":
     # for n in graph.iterative_dfs(graph.root, n5):
     # print(str(n.person.person_id), end=" --> ")
     graph.print_all_nodes()
+    graph.find_shortest_path(root, n5)
+    path = graph.extract_path(root, n5)
+
+    for node in path:
+        print(f'{node.person.person_id} --> ', end="")
