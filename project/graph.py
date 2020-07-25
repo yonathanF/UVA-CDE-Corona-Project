@@ -43,8 +43,8 @@ class Graph:
         self.root = root
         # Note: this is useful only for testing. The student code should use
         # the dictionary version
-        self.nodes = []
-        # self.nodes = {}
+        # self.nodes = []
+        self.nodes = {}
         self.count = count
         self.affected = affected
 
@@ -62,7 +62,7 @@ class Graph:
         """
         pass
 
-    def get_affected_percentage(self, node=None, thres=50):
+    def get_affected_percentage(self, node=None, thres=0):
         """
         Return the percentage of affected nodes in the whole graph.
         """
