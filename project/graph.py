@@ -206,6 +206,9 @@ class Graph:
 
         return count
 
+    def compute_path_probability(self, path):
+        return 1 if not path else path.pop().weight/100 * self.compute_path_probability(path)
+
 
 if __name__ == "__main__":
     graph = Graph()
@@ -232,6 +235,5 @@ if __name__ == "__main__":
     graph.print_all_nodes()
     graph.find_shortest_path(root, n5)
     path = graph.extract_path(root, n5)
-
-    for node in path:
-        print(f'{node.person.person_id} --> ', end="")
+    weight = graph.compute_path_probability(path)
+    print(weight)
