@@ -43,8 +43,8 @@ class Graph:
         self.root = root
         # Note: this is useful only for testing. The student code should use
         # the dictionary version
-        # self.nodes = []
-        self.nodes = {}
+        self.nodes = []
+        # self.nodes = {}
         self.count = count
         self.affected = affected
 
@@ -93,6 +93,7 @@ class Graph:
         """
         Print all nodes recusively; depth-first traversal.
         """
+
         if not node:
             node = self.root
 
@@ -173,7 +174,7 @@ class Graph:
         while not queue.empty():
             current = queue.dequeue()
 
-            current_short_path = current.weight + current.path_weight
+            current_short_path = current.weight * current.path_weight
 
             for neighbor in current.neighbors:
                 if neighbor.path_weight > current_short_path:
@@ -220,11 +221,11 @@ if __name__ == "__main__":
     n4 = Node(Person(4, "a", "b", "123"), weight=random.randint(1, 100))
     n5 = Node(Person(5, "a", "b", "123"), weight=random.randint(1, 100))
 
-    root.neighbors = [n1]
-    n1.neighbors = [n2, n3, n4]
-    n2.neighbors = [n3]
-    n3.neighbors = [n4]
-    n4.neighbors = [n5]
+    root.neighbors = [n5, n1]
+    n1.neighbors = [n3, n2]
+    n2.neighbors = [n4]
+    n3.neighbors = []
+    n4.neighbors = []
     graph.root = root
 
     # print(graph.get_affected_percentage())
@@ -232,7 +233,11 @@ if __name__ == "__main__":
     # print(graph.iterative_bfs(root, Node(Person("123", "t", "l", "123"))))
     # for n in graph.iterative_dfs(graph.root, n5):
     # print(str(n.person.person_id), end=" --> ")
-    graph.print_all_nodes()
+    # graph.print_all_nodes()
+    # graph.print_all_nodes()
+    # path = graph.iterative_dfs(root, n5)
+    # for node in path:
+    # print(str(node.person.person_id), end=" --> ")
     graph.find_shortest_path(root, n5)
     path = graph.extract_path(root, n5)
     weight = graph.compute_path_probability(path)
